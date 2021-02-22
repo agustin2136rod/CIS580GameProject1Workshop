@@ -25,7 +25,7 @@ namespace CIS580GameProject1
         private SlimeGhostSprite slimeGhost;
         private SpriteFont spriteFont;
         private BoundingCircle bounding;
-        private Stopwatch stopWatch;
+        private double gameClock;
 
         private KeyboardState keyboardState;
         private bool gameOver;
@@ -52,17 +52,8 @@ namespace CIS580GameProject1
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            ballPosition = new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
-            bounding = new BoundingCircle(ballPosition, 64);
-            System.Random random = new System.Random();
-            ballVelocity = new Vector2((float)random.NextDouble(), (float)random.NextDouble());
-            ballVelocity.Normalize();
-            ballVelocity *= 1500;
             slimeGhost = new SlimeGhostSprite();
-            stopWatch = new Stopwatch();
-            gameOver = false;
-
-
+            startGame();
             base.Initialize();
         }
 
@@ -79,9 +70,17 @@ namespace CIS580GameProject1
             // TODO: use this.Content to load your game content here
         }
 
-        private void restartGame()
+        private void startGame()
         {
-            Initialize();
+            ballPosition = new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
+            bounding = new BoundingCircle(ballPosition, 64);
+            System.Random random = new System.Random();
+            ballVelocity = new Vector2((float)random.NextDouble(), (float)random.NextDouble());
+            ballVelocity.Normalize();
+            ballVelocity *= 1500;
+            slimeGhost.Reset();
+            gameOver = false;
+            gameClock = 0;
         }
 
         /// <summary>
@@ -92,35 +91,40 @@ namespace CIS580GameProject1
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-            keyboardState = Keyboard.GetState();  
+            keyboardState = Keyboard.GetState();
 
-            // TODO: Add your update logic here
-            slimeGhost.Update(gameTime);
-            slimeGhost.Color = Color.White;
-            if (slimeGhost.Bounds.CollidesWith(bounding))
+            if (gameOver)
             {
-                slimeGhost.Color = Color.Black;
-                gameOver = true;
-                while (gameOver)
+                if (keyboardState.IsKeyDown(Keys.Space))
                 {
-                    if (keyboardState.IsKeyDown(Keys.Space))
-                    {
-                        gameOver = false;
-                        restartGame();
-                    }
+                    gameOver = false;
+                    startGame();
                 }
             }
+            else
+            {
+                // TODO: Add your update logic here
+                slimeGhost.Update(gameTime);
+                slimeGhost.Color = Color.White;
+                if (slimeGhost.Bounds.CollidesWith(bounding))
+                {
+                    slimeGhost.Color = Color.Black;
+                    gameOver = true;
 
-            //code receieved from Nathan Bean to implement the ball moving across the screen from HelloGame Demo
-            ballPosition += (float)gameTime.ElapsedGameTime.TotalSeconds * ballVelocity;
-            bounding.Center = ballPosition;
-            if (ballPosition.X < GraphicsDevice.Viewport.X || ballPosition.X > GraphicsDevice.Viewport.Width - 64)
-            {
-                ballVelocity.X *= -1;
-            }
-            if (ballPosition.Y < GraphicsDevice.Viewport.Y || ballPosition.Y > GraphicsDevice.Viewport.Height - 64)
-            {
-                ballVelocity.Y *= -1;
+                }
+
+                //code receieved from Nathan Bean to implement the ball moving across the screen from HelloGame Demo
+                ballPosition += (float)gameTime.ElapsedGameTime.TotalSeconds * ballVelocity;
+                bounding.Center = ballPosition;
+                if (ballPosition.X < GraphicsDevice.Viewport.X || ballPosition.X > GraphicsDevice.Viewport.Width - 64)
+                {
+                    ballVelocity.X *= -1;
+                }
+                if (ballPosition.Y < GraphicsDevice.Viewport.Y || ballPosition.Y > GraphicsDevice.Viewport.Height - 64)
+                {
+                    ballVelocity.Y *= -1;
+                }
+                gameClock += gameTime.ElapsedGameTime.TotalSeconds;
             }
 
             base.Update(gameTime);
@@ -138,7 +142,7 @@ namespace CIS580GameProject1
             _spriteBatch.Begin();
             slimeGhost.Draw(gameTime, _spriteBatch);
             _spriteBatch.Draw(ballTexture, ballPosition, Color.White);
-            _spriteBatch.DrawString(spriteFont, "Total time without being hit: " + gameTime.ElapsedGameTime.TotalSeconds.ToString(), new Vector2(2, 2), Color.Gold);
+            _spriteBatch.DrawString(spriteFont, "Total time without being hit: " + gameClock.ToString(), new Vector2(2, 2), Color.Gold);
 
             if (gameOver)
             {

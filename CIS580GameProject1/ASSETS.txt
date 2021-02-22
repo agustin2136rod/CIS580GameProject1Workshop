@@ -9,3 +9,7 @@ Collisions/BoundingCircle.cs - received from CollisionExample demo from Nathan B
 Collisions/CollisionHelper.cs - received from CollisionExample demo from Nathan Bean
 
 SlimeGhostSprite.cs - received from CollisionExample demo from Nathan Bean
+
+Content/music.mp3 - received from freesfx.co.uk - "Chaso Bizzaro" - https://freesfx.co.uk/Category/Horror/223
+
+Content/Hit_Hurt5 - received from Bfxr and was custom made by me

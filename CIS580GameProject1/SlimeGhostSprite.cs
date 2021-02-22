@@ -39,6 +39,12 @@ namespace CIS580GameProject1
         /// </summary>
         public Color Color { get; set; } = Color.White;
 
+        public void Reset()
+        {
+            position = new Vector2(200, 200);
+            bounds.Center = position;
+        }
+
         /// <summary>
         /// Loads the sprite texture using the provided ContentManager
         /// </summary>
