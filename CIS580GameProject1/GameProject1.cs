@@ -47,7 +47,7 @@ namespace CIS580GameProject1
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             //instructions for the game
-            Window.Title = "Don't Get Hit Game - Avoid getting hit by the ball for as long as possible!";
+            Window.Title = "Slime Dodge - Avoid getting hit by the ball for as long as possible!";
             
         }
 
