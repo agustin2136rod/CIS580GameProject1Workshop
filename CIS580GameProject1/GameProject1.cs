@@ -3,8 +3,10 @@
  */
 using CIS580GameProject1.Collisions;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using System.Diagnostics;
 using System.Timers;
 
@@ -29,6 +31,9 @@ namespace CIS580GameProject1
 
         private KeyboardState keyboardState;
         private bool gameOver;
+
+        private SoundEffect slimeHit;
+        private Song backgroundMusic;
 
 
 
@@ -66,7 +71,10 @@ namespace CIS580GameProject1
             ballTexture = Content.Load<Texture2D>("ball");
             slimeGhost.LoadContent(Content);
             spriteFont = Content.Load<SpriteFont>("arial");
-
+            backgroundMusic = Content.Load<Song>("music");
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Play(backgroundMusic);
+            slimeHit = Content.Load<SoundEffect>("Hit_Hurt5");
             // TODO: use this.Content to load your game content here
         }
 
@@ -81,6 +89,7 @@ namespace CIS580GameProject1
             slimeGhost.Reset();
             gameOver = false;
             gameClock = 0;
+            MediaPlayer.Play(backgroundMusic);
         }
 
         /// <summary>
@@ -110,7 +119,8 @@ namespace CIS580GameProject1
                 {
                     slimeGhost.Color = Color.Black;
                     gameOver = true;
-
+                    slimeHit.Play();
+                    MediaPlayer.Stop();
                 }
 
                 //code receieved from Nathan Bean to implement the ball moving across the screen from HelloGame Demo
