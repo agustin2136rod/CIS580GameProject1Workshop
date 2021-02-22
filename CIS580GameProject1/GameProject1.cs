@@ -146,7 +146,6 @@ namespace CIS580GameProject1
                 Vector2 sizeOfStr = spriteFont.MeasureString(msg);
                 _spriteBatch.DrawString(spriteFont, msg, new Vector2((GraphicsDevice.Viewport.Width / 2) - (sizeOfStr.X / 2),
                     (GraphicsDevice.Viewport.Height / 2) - (sizeOfStr.Y / 2)), Color.White);
-
             }
 
             _spriteBatch.End();
