@@ -25,6 +25,8 @@ namespace CIS580GameProject1
 
         private Vector2 position = new Vector2(200, 200);
 
+        private ParticleEngine particleEngine;
+
         private bool flipped;
 
         private BoundingCircle bounds = new BoundingCircle(new Vector2(200, 200), 16);
@@ -33,6 +35,11 @@ namespace CIS580GameProject1
         /// the bounding volume of the sprite
         /// </summary>
         public BoundingCircle Bounds => bounds;
+
+        /// <summary>
+        /// the position of the slime ghost
+        /// </summary>
+        public Vector2 Position => position;
 
         /// <summary>
         /// The color to blend with the ghost
@@ -52,6 +59,8 @@ namespace CIS580GameProject1
         public void LoadContent(ContentManager content)
         {
             texture = content.Load<Texture2D>("slime");
+            Texture2D particleTexture = content.Load<Texture2D>("diamond");
+            particleEngine = new ParticleEngine(particleTexture, position, Color.White);
         }
 
         /// <summary>
@@ -69,17 +78,34 @@ namespace CIS580GameProject1
             if (gamePadState.ThumbSticks.Left.X > 0) flipped = false;
 
             // Apply keyboard movement
-            if (keyboardState.IsKeyDown(Keys.Up) || keyboardState.IsKeyDown(Keys.W)) position += new Vector2(0, -1) * 5;
-            if (keyboardState.IsKeyDown(Keys.Down) || keyboardState.IsKeyDown(Keys.S)) position += new Vector2(0, 1) * 5;
+            if (keyboardState.IsKeyDown(Keys.Up) || keyboardState.IsKeyDown(Keys.W)) 
+            {
+                position += new Vector2(0, -1) * 5;
+                particleEngine.Emit = new Vector2(position.X, position.Y);
+                particleEngine.Update();
+            }
+
+            if (keyboardState.IsKeyDown(Keys.Down) || keyboardState.IsKeyDown(Keys.S)) 
+            {
+                position += new Vector2(0, 1) * 5;
+                particleEngine.Emit = new Vector2(position.X, position.Y);
+                particleEngine.Update();
+            } 
+
             if (keyboardState.IsKeyDown(Keys.Left) || keyboardState.IsKeyDown(Keys.A))
             {
                 position += new Vector2(-1, 0) * 5;
                 flipped = true;
+                particleEngine.Emit = new Vector2(position.X, position.Y);
+                particleEngine.Update();
             }
+            
             if (keyboardState.IsKeyDown(Keys.Right) || keyboardState.IsKeyDown(Keys.D))
             {
                 position += new Vector2(1, 0) * 5;
                 flipped = false;
+                particleEngine.Emit = new Vector2(position.X, position.Y);
+                particleEngine.Update();
             }
             //update the bounds
             bounds.Center = position;
@@ -94,6 +120,7 @@ namespace CIS580GameProject1
         {
             SpriteEffects spriteEffects = (flipped) ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             spriteBatch.Draw(texture, position, null, Color, 0, new Vector2(64, 64), 0.25f, spriteEffects, 0);
+            particleEngine.Draw(spriteBatch);
         }
     }
 }

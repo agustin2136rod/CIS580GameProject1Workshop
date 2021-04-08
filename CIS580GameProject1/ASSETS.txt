@@ -13,3 +13,15 @@ SlimeGhostSprite.cs - received from CollisionExample demo from Nathan Bean
 Content/music.mp3 - received from freesfx.co.uk - "Chaso Bizzaro" - https://freesfx.co.uk/Category/Horror/223
 
 Content/Hit_Hurt5 - received from Bfxr and was custom made by me
+
+Content/diamond.png - recieved from http://rbwhitaker.wikidot.com/2d-particle-engine-1
+
+Content/circle.png - recieved from http://rbwhitaker.wikidot.com/2d-particle-engine-1
+
+Content/Explosion.png - received from https://iconarchive.com/show/free-game-icons-by-aha-soft/Explosion-icon.html. The License for this image is as follows: http://www.aha-soft.com
+
+Content/Background.png - received from https://emily2.itch.io/parallax-scrolling-backgrounds author: Exuin
+
+Content/foreground.png - received from https://emily2.itch.io/parallax-scrolling-backgrounds author: Exuin
+
+Content/midground.png - received from https://emily2.itch.io/parallax-scrolling-backgrounds author: Exuin

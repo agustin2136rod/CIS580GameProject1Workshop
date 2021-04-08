@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using System;
 using System.Diagnostics;
 using System.Timers;
 
@@ -15,7 +16,7 @@ namespace CIS580GameProject1
     /// <summary>
     /// Class to represent the entire GameProject1 where a slime ghost has to evade a moving ball for as long as possible
     /// </summary>
-    public class GameProject1 : Game
+    public class GameProject4 : Game
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
@@ -32,23 +33,32 @@ namespace CIS580GameProject1
         private KeyboardState keyboardState;
         private bool gameOver;
 
+        //music and sound effect variables
         private SoundEffect slimeHit;
         private Song backgroundMusic;
 
+        //Particle engine for ball effects
+        ParticleEngine particleEngine;
 
+        //Particle engine for collision effects
+        ExplosionEngine explosionEngine;
 
+        //layer textures
+        private Texture2D _background;
+        private Texture2D _foreground;
+        private Texture2D _midground;
 
         /// <summary>
         /// constructor
         /// </summary>
-        public GameProject1()
+        public GameProject4()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             //instructions for the game
             Window.Title = "Slime Dodge - Avoid getting hit by the ball for as long as possible!";
-            
+            _graphics.GraphicsProfile = GraphicsProfile.HiDef;
         }
 
         /// <summary>
@@ -69,6 +79,8 @@ namespace CIS580GameProject1
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             ballTexture = Content.Load<Texture2D>("ball");
+            Texture2D ballEffect = Content.Load<Texture2D>("circle");
+            Texture2D explosionEffect = Content.Load<Texture2D>("Explosion");
             slimeGhost.LoadContent(Content);
             spriteFont = Content.Load<SpriteFont>("arial");
             backgroundMusic = Content.Load<Song>("music");
@@ -76,13 +88,20 @@ namespace CIS580GameProject1
             MediaPlayer.Play(backgroundMusic);
             slimeHit = Content.Load<SoundEffect>("Hit_Hurt5");
             // TODO: use this.Content to load your game content here
+
+            particleEngine = new ParticleEngine(ballEffect, ballPosition, Color.Brown);
+            explosionEngine = new ExplosionEngine(explosionEffect, bounding.Center, Color.Orange);
+
+            _background = Content.Load<Texture2D>("Background");
+            _foreground = Content.Load<Texture2D>("foreground");
+            _midground = Content.Load<Texture2D>("midground");
         }
 
         private void startGame()
         {
             ballPosition = new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
-            bounding = new BoundingCircle(ballPosition, 64);
-            System.Random random = new System.Random();
+            bounding = new BoundingCircle(ballPosition, 32);
+            Random random = new Random();
             ballVelocity = new Vector2((float)random.NextDouble(), (float)random.NextDouble());
             ballVelocity.Normalize();
             ballVelocity *= 1500;
@@ -104,6 +123,8 @@ namespace CIS580GameProject1
 
             if (gameOver)
             {
+                explosionEngine.Emit = new Vector2(bounding.Center.X, bounding.Center.Y);
+                explosionEngine.Update();
                 if (keyboardState.IsKeyDown(Keys.Space))
                 {
                     gameOver = false;
@@ -125,6 +146,8 @@ namespace CIS580GameProject1
 
                 //code receieved from Nathan Bean to implement the ball moving across the screen from HelloGame Demo
                 ballPosition += (float)gameTime.ElapsedGameTime.TotalSeconds * ballVelocity;
+                particleEngine.Emit = new Vector2(bounding.Center.X, bounding.Center.Y);
+                particleEngine.Update();
                 bounding.Center = ballPosition;
                 if (ballPosition.X < GraphicsDevice.Viewport.X || ballPosition.X > GraphicsDevice.Viewport.Width - 64)
                 {
@@ -134,7 +157,8 @@ namespace CIS580GameProject1
                 {
                     ballVelocity.Y *= -1;
                 }
-                gameClock += gameTime.ElapsedGameTime.TotalSeconds;
+                gameClock += Math.Round(gameTime.ElapsedGameTime.TotalSeconds, 3);
+                
             }
 
             base.Update(gameTime);
@@ -148,11 +172,29 @@ namespace CIS580GameProject1
         {
             GraphicsDevice.Clear(Color.Black);
 
-            // TODO: Add your drawing code here
-            _spriteBatch.Begin();
+            float playerX = MathHelper.Clamp(slimeGhost.Position.X, 50, 2000);
+            float offset = 200 - playerX;
+
+            Matrix transform;
+
+            transform = Matrix.CreateTranslation(offset * 0.333f, 0, 0);
+            _spriteBatch.Begin(transformMatrix: transform);
+            _spriteBatch.Draw(_background, Vector2.Zero, Color.White);
+            _spriteBatch.End();
+
+            transform = Matrix.CreateTranslation(offset * 0.666f, 0, 0);
+            _spriteBatch.Begin(transformMatrix: transform);
+            _spriteBatch.Draw(_midground, Vector2.Zero, Color.White);
+            _spriteBatch.End();
+
+            transform = Matrix.CreateTranslation(offset, 0, 0);
+            _spriteBatch.Begin(transformMatrix: transform);
+            _spriteBatch.Draw(_foreground, Vector2.Zero, Color.White);
             slimeGhost.Draw(gameTime, _spriteBatch);
             _spriteBatch.Draw(ballTexture, ballPosition, Color.White);
-            _spriteBatch.DrawString(spriteFont, "Total time without being hit: " + gameClock.ToString(), new Vector2(2, 2), Color.Gold);
+            particleEngine.Draw(_spriteBatch);
+            explosionEngine.Draw(_spriteBatch);
+            _spriteBatch.DrawString(spriteFont, "Total time without being hit: " + gameClock, new Vector2(2, 2), Color.Gold);
 
             if (gameOver)
             {
